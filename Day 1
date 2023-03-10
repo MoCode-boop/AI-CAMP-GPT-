@@ -1,0 +1,27 @@
+GPT_TOKEN = "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"
+
+from huggingface_hub.inference_api import InferenceApi
+inference = InferenceApi(repo_id="gpt2-large", token=GPT_TOKEN)
+
+# define parameters
+top_p_params = {"max_length": 128, "top_p": 1.0, "do_sample":True} # top-p (nucleus sampling)
+top_k_params = {"max_length": 128,  "top_k": 5, "do_sample":True} # top-k
+
+contrastive_params = {"max_length": 128, "penalty_alpha": 1, "top_k": 4}
+
+input_string = "Cookies are tasty because"
+result = inference(input_string)
+print(result)
+
+
+result = inference(input_string, top_p_params)
+print(f"Top P: {result}")
+
+result = inference(input_string, top_k_params)
+
+print(f"Top K: {result}")
+
+result = inference(input_string, contrastive_params)
+
+print(f"contrastive: {result}")
+
