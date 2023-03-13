@@ -1,0 +1,40 @@
+import gradio as gr
+from huggingface_hub.inference_api import InferenceApi
+import os
+from gtts import gTTS
+
+
+API_Token = os.environ["HFKEY"]
+inference = InferenceApi(repo_id="gpt2-large", token=API_Token)
+
+def do_gradio(input_string, max_length):
+  contrastive_params = {"max_length": max_length, "penalty_alpha": 1, "top_k": 4} 
+  top_p_params = {"max_length": max_length, "top_p": 1.0, "do_sample":True}
+  top_k_params = {"max_length": max_length,  "top_k": 5, "do_sample":True}
+  contrastive = inference(input_string, contrastive_params)
+  top_p = inference(input_string, top_p_params)
+  top_k = inference(input_string, top_k_params)
+  contrastive = contrastive[0]['generated_text']
+  top_p = top_p[0]['generated_text']
+  top_k = top_k[0]['generated_text']
+  audio = gTTS(text=contrastive, lang='en', slow=False)
+  audio.save("contrastive.wav")
+  
+  return contrastive, top_p, top_k, "contrastive.wav"
+
+
+def to_gradio():
+  demo = gr.Interface(
+      fn=do_gradio,
+      inputs=["text", gr.Slider(0, 250)],
+      outputs=["text", "text", "text", "audio"],
+      title="Text Generation with GPT-2 Language Model",
+      description=
+      "This model takes some input text, and generates new text from GPT-2 by using top-p, top-k, and contrastive sampling")
+  
+  demo.launch(debug=True, share=True)
+
+to_gradio()
+
+
+
