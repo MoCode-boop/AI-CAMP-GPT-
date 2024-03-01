@@ -1,4 +1,4 @@
-GPT_TOKEN = "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"
+GPT_TOKEN = "" #ENTER api key here
 
 from huggingface_hub.inference_api import InferenceApi
 inference = InferenceApi(repo_id="gpt2-large", token=GPT_TOKEN)
